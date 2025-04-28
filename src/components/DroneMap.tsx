@@ -5,11 +5,17 @@ import React, { useEffect, useRef, useState } from 'react';
 const initialDronePosition = { lat: 37.7837, lng: -122.4090 }; // Slightly away from user
 const userPosition = { lat: 37.7749, lng: -122.4194 }; // San Francisco
 
+// Helper type for our position objects
+interface Position {
+  lat: number;
+  lng: number;
+}
+
 const DroneMap = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [droneMarker, setDroneMarker] = useState<google.maps.Marker | null>(null);
-  const [dronePosition, setDronePosition] = useState(initialDronePosition);
+  const [dronePosition, setDronePosition] = useState<Position>(initialDronePosition);
   const [isLoaded, setIsLoaded] = useState(false);
   const [eta, setEta] = useState('12 minutes');
 
@@ -31,15 +37,17 @@ const DroneMap = () => {
     // This would be the real initialization in a production app
     console.log("Map would be initialized here");
 
-    // Mock the map functionality
-    setMap({} as google.maps.Map);
+    // Mock the map functionality by creating an empty object that satisfies the type
+    const mockMap = {} as google.maps.Map;
+    setMap(mockMap);
     
     // Create user marker
     console.log("User marker would be created at:", userPosition);
     
-    // Create drone marker
+    // Create drone marker - mocked with an empty object that satisfies the type
     console.log("Drone marker would be created at:", initialDronePosition);
-    setDroneMarker({} as google.maps.Marker);
+    const mockMarker = {} as google.maps.Marker;
+    setDroneMarker(mockMarker);
 
     // For demo, simulate drone movement
     const interval = setInterval(() => {
@@ -71,6 +79,8 @@ const DroneMap = () => {
   useEffect(() => {
     if (droneMarker) {
       console.log("Drone marker would move to:", dronePosition);
+      // In a real implementation, we would call:
+      // droneMarker.setPosition(dronePosition);
     }
   }, [droneMarker, dronePosition]);
 
