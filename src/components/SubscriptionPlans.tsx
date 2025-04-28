@@ -1,7 +1,13 @@
-
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type PlanFeature = {
   text: string;
@@ -69,11 +75,25 @@ const SubscriptionPlans = () => {
     },
   ];
 
-  const handleSubscribe = (planName: string) => {
-    toast({
-      title: "Subscription",
-      description: `You've selected the ${planName} plan. We'll redirect you to payment.`,
-    });
+  const handleWhatsAppPayment = (plan: Plan) => {
+    const message = `Hi, I would like to subscribe to the ${plan.name} plan for ${plan.price}/month`;
+    const whatsappUrl = `https://wa.me/919997127833?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handlePaytmPayment = (plan: Plan) => {
+    const paytmUrl = `paytmmp://pay?pa=9997127833@ptsbi&pn=Drone%20Assistance&am=${plan.price.replace('$', '')}&cu=INR&tn=${encodeURIComponent(`${plan.name} Plan Subscription`)}`;
+    window.location.href = paytmUrl;
+    
+    // Fallback for desktop
+    setTimeout(() => {
+      if (document.hasFocus()) {
+        toast({
+          title: "Paytm App Not Found",
+          description: "Please ensure you have Paytm app installed or use WhatsApp payment option.",
+        });
+      }
+    }, 1000);
   };
 
   return (
@@ -106,12 +126,36 @@ const SubscriptionPlans = () => {
                   <span className="text-gray-400"> / month</span>
                 </div>
                 <p className="text-gray-400 mb-6">{plan.description}</p>
-                <Button 
-                  className={`w-full mb-6 ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
-                  onClick={() => handleSubscribe(plan.name)}
-                >
-                  {plan.buttonText}
-                </Button>
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button 
+                      className={`w-full mb-6 ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
+                    >
+                      {plan.buttonText}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Choose Payment Method</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <Button
+                        onClick={() => handleWhatsAppPayment(plan)}
+                        className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600"
+                      >
+                        Pay with WhatsApp
+                      </Button>
+                      <Button
+                        onClick={() => handlePaytmPayment(plan)}
+                        className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600"
+                      >
+                        Pay with Paytm UPI
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
                 <ul className="space-y-3">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center">
